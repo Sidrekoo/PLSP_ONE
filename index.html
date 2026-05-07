@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PLSP Student Portal — Pamantasan ng Lungsod ng San Pablo" />
+  <title>PLSP Student Portal</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     LOADING SCREEN
+     ============================================================ -->
+<div id="loading-screen">
+  <img class="ls-logo" src="assets/logo.png" alt="PLSP Logo" />
+  <div class="ls-title">PLSP Student Portal<br><span style="font-size:1rem;font-weight:400;opacity:.7">Pamantasan ng Lungsod ng San Pablo</span></div>
+  <div class="ls-bar"><div class="ls-bar-fill"></div></div>
+  <div class="ls-sub">Loading portal resources…</div>
+</div>
+
+<!-- Mini loader (login transition) -->
+<div id="mini-loader"><div class="mini-spinner"></div></div>
+
+<!-- Toast container -->
+<div id="toast-wrap" class="toast-wrap"></div>
+
+<!-- ============================================================
+     MODAL
+     ============================================================ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <div class="m-icon" id="m-icon">✅</div>
+    <h3 id="m-title">Done</h3>
+    <p id="m-msg"></p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal()">OK, Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: LOGIN / REGISTER
+     ============================================================ -->
+<div id="pg-login" class="screen show">
+  <div class="auth-page">
+
+    <!-- Background -->
+    <div class="auth-bg">
+      <!-- Replace src with your uploaded gate image -->
+      <img class="auth-bg-img" id="auth-bg-img" src="assets/gate.jpg" alt="" onerror="this.style.display='none'" />
+      <div class="auth-bg-overlay"></div>
+    </div>
+
+    <!-- Decorative circles -->
+    <div class="auth-deco auth-deco-1"></div>
+    <div class="auth-deco auth-deco-2"></div>
+    <div class="auth-deco auth-deco-3"></div>
+
+    <!-- Left brand panel -->
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <img src="assets/logo.png" alt="PLSP Logo" />
+        <span>Pamantasan ng<br>Lungsod ng San Pablo</span>
+      </div>
+      <h1>Your Academic<br>Life, <span>Simplified.</span></h1>
+      <p>Access your grades, request documents, purchase school supplies, and manage your academic records — all in one place.</p>
+      <div class="auth-brand-badges">
+        <span class="auth-badge">📚 Academic Records</span>
+        <span class="auth-badge">🛍️ School Store</span>
+        <span class="auth-badge">📄 Document Requests</span>
+        <span class="auth-badge">💳 Cashless Payments</span>
+      </div>
+
+    </div>
+
+    <!-- Right form panel -->
+    <div class="auth-form-panel">
+      <div class="auth-form-inner">
+
+        <!-- LOGIN FORM -->
+        <div id="form-login" class="auth-form">
+          <div class="auth-form-header">
+            <h2>Welcome back</h2>
+            <p>Sign in with your student credentials to continue.</p>
+          </div>
+          <div class="fld">
+            <label>Student ID</label>
+            <div class="fld-wrap has-icon">
+              <span class="fld-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
+              </span>
+              <input id="li-id" type="text" placeholder="24-00001" maxlength="8"
+                oninput="this.classList.remove('invalid')" />
+            </div>
+            <div class="id-hint">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Format: YY-NNNNN (e.g. 24-12345)
+            </div>
+          </div>
+          <div class="fld">
+            <label>Password</label>
+            <div class="fld-wrap has-icon">
+              <span class="fld-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </span>
+              <input id="li-pw" type="password" placeholder="Enter your password" />
+            </div>
+            <div class="err" id="li-err">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Incorrect Student ID or password.</span>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="doLogin()" style="margin-top:.5rem">Sign In</button>
+          <div class="auth-switch" style="margin-top:1rem">
+            New student? <a onclick="showAuthForm('register')">Create an account</a>
+          </div>
+          <div class="divider">or</div>
+          <button class="btn-secondary" onclick="go('pg-adminlogin')">Admin / Staff Login</button>
+        </div><!-- /form-login -->
+
+        <!-- REGISTER FORM -->
+        <div id="form-register" class="auth-form hidden">
+          <div class="auth-form-header">
+            <h2>Create Account</h2>
+            <p>Register your student profile to get started.</p>
+          </div>
+          <div class="frow">
+            <div class="fld">
+              <label>Student ID <span style="color:var(--red)">*</span></label>
+              <input id="rg-id" type="text" placeholder="24-00001" maxlength="8" />
+              <div class="id-hint">YY-NNNNN format</div>
+            </div>
+            <div class="fld">
+              <label>Course <span style="color:var(--red)">*</span></label>
+              <select id="rg-course">
+                <option value="">Select course</option>
+                <option>BS Accountancy</option>
+                <option>BS Computer Science</option>
+                <option>BS Information Technology</option>
+                <option>BS Business Administration</option>
+                <option>BS Nursing</option>
+                <option>BS Psychology</option>
+                <option>BA Communication</option>
+                <option>BS Education</option>
+                <option>BS Engineering</option>
+              </select>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Full Name <span style="color:var(--red)">*</span></label>
+            <input id="rg-name" type="text" placeholder="Last Name, First Name M.I." />
+          </div>
+          <div class="frow">
+            <div class="fld">
+              <label>Year Level <span style="color:var(--red)">*</span></label>
+              <select id="rg-year">
+                <option value="">Select year</option>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label>Section</label>
+              <input id="rg-sec" type="text" placeholder="A" maxlength="3" />
+            </div>
+          </div>
+          <div class="fld">
+            <label>Password <span style="color:var(--red)">*</span></label>
+            <input id="rg-pw" type="password" placeholder="Minimum 6 characters"
+              oninput="checkPwStrength(this.value)" />
+            <div class="pw-strength">
+              <div class="pw-bar"><div class="pw-bar-fill" id="pw-bar-fill"></div></div>
+              <div class="pw-label" id="pw-label"></div>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Confirm Password <span style="color:var(--red)">*</span></label>
+            <input id="rg-pw2" type="password" placeholder="Re-enter password" />
+          </div>
+          <div class="err" id="rg-err">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Please fill in all fields.</span>
+          </div>
+          <button class="btn-primary" onclick="doRegister()" style="margin-top:.5rem">Create Account</button>
+          <div class="auth-switch" style="margin-top:1rem">
+            Already have an account? <a onclick="showAuthForm('login')">Sign in</a>
+          </div>
+        </div><!-- /form-register -->
+
+      </div>
+    </div><!-- /auth-form-panel -->
+  </div>
+</div><!-- /pg-login -->
+
+<!-- ============================================================
+     SCREEN: ADMIN LOGIN
+     ============================================================ -->
+<div id="pg-adminlogin" class="screen">
+  <div class="auth-page">
+    <div class="auth-bg">
+      <img class="auth-bg-img" src="assets/gate.jpg" alt="" onerror="this.style.display='none'" />
+      <div class="auth-bg-overlay" style="background:linear-gradient(135deg,rgba(13,27,75,.93),rgba(30,58,138,.88))"></div>
+    </div>
+    <div class="auth-deco auth-deco-1"></div>
+    <div class="auth-deco auth-deco-2"></div>
+
+    <div class="auth-brand" style="--g700:#1e3a8a;--g800:#0d1b4b">
+      <div class="auth-brand-logo">
+        <img src="assets/logo.png" alt="PLSP Logo" />
+        <span>Pamantasan ng<br>Lungsod ng San Pablo</span>
+      </div>
+      <h1>Admin &amp;<br>Staff <span style="color:#60a5fa">Portal</span></h1>
+      <p>Manage students, transactions, document requests, and school store inventory from a centralized dashboard.</p>
+      <div class="auth-brand-badges">
+        <span class="auth-badge">👥 Student Management</span>
+        <span class="auth-badge">📦 Store Inventory</span>
+        <span class="auth-badge">📋 Document Processing</span>
+      </div>
+    </div>
+
+    <div class="auth-form-panel">
+      <div class="auth-form-inner">
+        <div id="form-admin" class="auth-form">
+          <div class="auth-form-header">
+            <h2>Admin Access</h2>
+            <p>Sign in with your administrator credentials.</p>
+          </div>
+          <div class="fld">
+            <label>Username</label>
+            <div class="fld-wrap has-icon">
+              <span class="fld-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input id="al-u" type="text" placeholder="admin" />
+            </div>
+          </div>
+          <div class="fld">
+            <label>Password</label>
+            <div class="fld-wrap has-icon">
+              <span class="fld-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              </span>
+              <input id="al-pw" type="password" placeholder="Password" />
+            </div>
+            <div class="err" id="al-err">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Invalid username or password.</span>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="doAdminLogin()" style="margin-top:.5rem;background:#1e3a8a">Sign In as Admin</button>
+          <div class="auth-switch" style="margin-top:1rem">
+            <a onclick="go('pg-login')" style="color:#3b82f6">← Back to Student Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /pg-adminlogin -->
+
+<!-- ============================================================
+     SCREEN: STUDENT APP
+     ============================================================ -->
+<div id="pg-app" class="screen">
+  <div class="sb-overlay" id="sb-overlay" onclick="closeSb()"></div>
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sb-header">
+        <img class="sb-logo" src="assets/logo.png" alt="PLSP" />
+        <div>
+          <div class="sb-title">PLSP Portal</div>
+          <div class="sb-subtitle">A.Y. 2025–2026</div>
+        </div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-section-label">Main</div>
+        <a class="sb-item active" data-sec="dashboard" onclick="sec('dashboard')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a class="sb-item" data-sec="academic" onclick="sec('academic')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422A12 12 0 0121 13c0 5-3.5 9-8 10-4.5-1-8-5-8-10 0-.62.06-1.23.84-2.578L12 14z"/></svg>
+          Academic Records
+        </a>
+        <div class="sb-section-label">Store</div>
+        <a class="sb-item" data-sec="store" onclick="sec('store')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5v1a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M8 21V9M16 21V9"/></svg>
+          School Store
+        </a>
+        <a class="sb-item" data-sec="cart" onclick="sec('cart')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Cart
+          <span class="sb-cart-dot" id="cart-badge">0</span>
+        </a>
+        <div class="sb-section-label">Services</div>
+        <a class="sb-item" data-sec="documents" onclick="sec('documents')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Document Requests
+        </a>
+        <div class="sb-section-label">Account</div>
+        <a class="sb-item" data-sec="profile" onclick="sec('profile')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          My Profile
+        </a>
+      </div>
+      <div class="sb-footer">
+        <div class="sb-user">
+          <div class="sb-avatar" id="sb-av">JD</div>
+          <div class="sb-user-info">
+            <div class="sb-user-name" id="sb-name">Student</div>
+            <div class="sb-user-role" id="sb-course">Loading…</div>
+          </div>
+          <button class="sb-logout" onclick="doLogout()" title="Sign out">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main-area">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSb()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <span class="topbar-title" id="topbar-title">Dashboard</span>
+        </div>
+        <div class="topbar-right">
+          <div class="sem-select">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <select id="sem-selector" onchange="onSemChange(this.value)">
+              <option value="1st-2526">1st Sem 2025-26</option>
+              <option value="2nd-2425">2nd Sem 2024-25</option>
+              <option value="1st-2425">1st Sem 2024-25</option>
+            </select>
+          </div>
+          <div class="notif-wrap" id="notif-wrap">
+            <button class="topbar-bell" id="notif-bell" onclick="toggleNotif()" title="Notifications">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <span class="topbar-bell-dot" id="notif-dot" style="display:none"></span>
+            </button>
+            <div class="notif-panel" id="notif-panel">
+              <div class="notif-header">
+                <span class="notif-title">Notifications</span>
+                <button class="notif-clear-all" onclick="clearAllNotifs()">Mark all read</button>
+              </div>
+              <div class="notif-list" id="notif-list"></div>
+              <div class="notif-footer" onclick="sec('documents');closeNotif()">View Document Requests &rarr;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="page-content">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="sec-dashboard" class="sec show">
+          <div class="welcome-banner">
+            <div class="wb-text">
+              <h2>Good day, <span id="welcome-name">Student</span>! 👋</h2>
+              <p>Here is your current academic overview.</p>
+              <div class="wb-sem">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                1st Semester · A.Y. 2025–2026
+              </div>
+            </div>
+            <div class="wb-graphic">🎓</div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#e8f5e9">📚</div>
+              <h3 id="stat-enrolled">6</h3>
+              <p>Enrolled Subjects</p>
+              <div class="stat-change neutral">Current semester</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#fff8e1">⭐</div>
+              <h3 id="stat-gwa">1.75</h3>
+              <p>General Average</p>
+              <div class="stat-change up">↑ Improved</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#e3f2fd">📋</div>
+              <h3>2</h3>
+              <p>Pending Requests</p>
+              <div class="stat-change neutral">Doc requests</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#fce4ec">🛒</div>
+              <h3 id="stat-cart">0</h3>
+              <p>Cart Items</p>
+              <div class="stat-change neutral"><a onclick="sec('cart')" style="color:var(--g600);font-weight:600;cursor:pointer">View cart</a></div>
+            </div>
+          </div>
+
+          <div class="dash-grid">
+            <div class="dash-col">
+              <div class="card">
+                <div class="card-header">
+                  <h3>📢 Announcements</h3>
+                  <span class="badge badge-gray" style="font-size:.7rem">May 2026</span>
+                </div>
+                <div class="card-body">
+                  <div class="ann-item">
+                    <span class="badge badge-red">Urgent</span>
+                    <h4>2nd Semester Enrollment Now Open</h4>
+                    <p>Enrollment for the 2nd semester is open until June 15, 2026. Proceed to the Registrar's Office with your clearance slip.</p>
+                  </div>
+                  <div class="ann-item">
+                    <span class="badge badge-blue">Academic</span>
+                    <h4>Final Examination Schedule Posted</h4>
+                    <p>Final exam schedules are now available. Check the bulletin board or your class group chats for room assignments.</p>
+                  </div>
+                  <div class="ann-item">
+                    <span class="badge badge-green">Store</span>
+                    <h4>New Uniform and PE Gear Available</h4>
+                    <p>PE uniforms, ID lanyards, and school IDs are now restocked. Order through the School Store.</p>
+                  </div>
+                  <div class="ann-item">
+                    <span class="badge badge-gold">Reminder</span>
+                    <h4>Clearance Submission Deadline</h4>
+                    <p>All students must submit their clearance requirements before the end of the examination period.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-col">
+              <div class="card">
+                <div class="card-header"><h3>⚡ Quick Access</h3></div>
+                <div class="card-body">
+                  <div class="quick-grid">
+                    <button class="quick-btn" onclick="sec('academic')"><span class="qi">📊</span>View Grades</button>
+                    <button class="quick-btn" onclick="sec('store')"><span class="qi">🛍️</span>School Store</button>
+                    <button class="quick-btn" onclick="sec('documents')"><span class="qi">📄</span>Request Docs</button>
+                    <button class="quick-btn" onclick="sec('cart')"><span class="qi">🛒</span>My Cart</button>
+                    <button class="quick-btn" onclick="sec('profile')"><span class="qi">👤</span>My Profile</button>
+                    <button class="quick-btn" onclick="sec('academic');swTab('schedule')"><span class="qi">🗓️</span>Schedule</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>📅 Upcoming</h3></div>
+                <div class="card-body" style="padding-top:.75rem">
+                  <div style="display:flex;flex-direction:column;gap:.7rem">
+                    <div style="display:flex;align-items:center;gap:.9rem">
+                      <div style="width:42px;height:42px;border-radius:10px;background:var(--g100);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                        <span style="font-size:.6rem;font-weight:700;color:var(--g700);text-transform:uppercase">May</span>
+                        <span style="font-size:1rem;font-weight:800;color:var(--g700);line-height:1">19</span>
+                      </div>
+                      <div><div style="font-size:.86rem;font-weight:600">Final Examination Begins</div><div style="font-size:.76rem;color:var(--text-muted)">All subjects · Check room assignments</div></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.9rem">
+                      <div style="width:42px;height:42px;border-radius:10px;background:#e3f2fd;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                        <span style="font-size:.6rem;font-weight:700;color:var(--blue);text-transform:uppercase">Jun</span>
+                        <span style="font-size:1rem;font-weight:800;color:var(--blue);line-height:1">1</span>
+                      </div>
+                      <div><div style="font-size:.86rem;font-weight:600">Enrollment Deadline</div><div style="font-size:.76rem;color:var(--text-muted)">2nd Semester 2025-2026</div></div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.9rem">
+                      <div style="width:42px;height:42px;border-radius:10px;background:var(--gold-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+                        <span style="font-size:.6rem;font-weight:700;color:var(--gold-dark);text-transform:uppercase">Jun</span>
+                        <span style="font-size:1rem;font-weight:800;color:var(--gold-dark);line-height:1">15</span>
+                      </div>
+                      <div><div style="font-size:.86rem;font-weight:600">Clearance Deadline</div><div style="font-size:.76rem;color:var(--text-muted)">Submit to respective departments</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /dashboard -->
+
+        <!-- ===== ACADEMIC ===== -->
+        <div id="sec-academic" class="sec">
+          <div class="sec-head">
+            <h2>Academic Records</h2>
+            <p>View your grades and class schedule by semester.</p>
+          </div>
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="grades" onclick="swTab('grades')">📊 Grades</button>
+            <button class="tab-btn" data-tab="schedule" onclick="swTab('schedule')">🗓️ Class Schedule</button>
+          </div>
+
+          <div id="tab-grades">
+            <div class="card">
+              <div class="card-header">
+                <h3>Grade Report</h3>
+                <span class="grade grade-1" id="gwa-badge">GWA: 1.75</span>
+              </div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Code</th><th>Subject</th><th style="text-align:center">Units</th>
+                      <th style="text-align:center">Prelim</th><th style="text-align:center">Midterm</th>
+                      <th style="text-align:center">Final</th><th>Grade</th>
+                    </tr>
+                  </thead>
+                  <tbody id="grades-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-schedule" style="display:none">
+            <div class="card">
+              <div class="card-header"><h3>Class Schedule</h3></div>
+              <div class="tbl-wrap">
+                <table>
+                  <thead><tr><th>Subject</th><th>Day</th><th>Time</th><th>Room</th><th>Instructor</th></tr></thead>
+                  <tbody id="sched-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div><!-- /academic -->
+
+        <!-- ===== STORE ===== -->
+        <div id="sec-store" class="sec">
+          <div class="sec-head">
+            <h2>School Store</h2>
+            <p>Purchase official PLSP merchandise and supplies.</p>
+          </div>
+          <div class="chip-bar">
+            <button class="chip active" onclick="filterStore('all',this)">All Items</button>
+            <button class="chip" onclick="filterStore('uniform',this)">Uniforms</button>
+            <button class="chip" onclick="filterStore('id',this)">ID &amp; Lanyards</button>
+            <button class="chip" onclick="filterStore('pe',this)">PE Gear</button>
+            <button class="chip" onclick="filterStore('supplies',this)">Supplies</button>
+          </div>
+          <div class="store-grid" id="store-grid"></div>
+        </div><!-- /store -->
+
+        <!-- ===== CART ===== -->
+        <div id="sec-cart" class="sec">
+          <div class="sec-head">
+            <h2>Cart &amp; Checkout</h2>
+            <p>Review your selected items and complete your purchase.</p>
+          </div>
+          <div class="cart-layout">
+            <div class="card">
+              <div class="card-header">
+                <h3>Selected Items</h3>
+                <span id="cart-count" style="font-size:.82rem;color:var(--text-muted)">0 items</span>
+              </div>
+              <div class="card-body" id="cart-items">
+                <div class="empty-state">
+                  <div class="empty-icon">🛒</div>
+                  <h4>Your cart is empty</h4>
+                  <p>Browse the <a onclick="sec('store')">School Store</a> to add items.</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="order-summary">
+                <h3>Order Summary</h3>
+                <div class="sum-row"><span>Subtotal</span><span id="sum-sub">₱0.00</span></div>
+                <div class="sum-row"><span>Processing Fee</span><span>₱0.00</span></div>
+                <div class="sum-row total"><span>Total</span><span id="sum-tot">₱0.00</span></div>
+                <div class="payment-opts">
+                  <h4>Payment Method</h4>
+                  <label class="pay-opt selected" id="po-gcash">
+                    <input type="radio" name="pay" value="gcash" checked onchange="selPay(this)" />
+                    <div class="pay-logo pay-gcash">G</div>
+                    <span class="pay-opt-name">GCash</span>
+                  </label>
+                  <label class="pay-opt" id="po-maya">
+                    <input type="radio" name="pay" value="maya" onchange="selPay(this)" />
+                    <div class="pay-logo pay-maya">M</div>
+                    <span class="pay-opt-name">Maya</span>
+                  </label>
+                  <label class="pay-opt" id="po-paypal">
+                    <input type="radio" name="pay" value="paypal" onchange="selPay(this)" />
+                    <div class="pay-logo pay-paypal">P</div>
+                    <span class="pay-opt-name">PayPal</span>
+                  </label>
+                </div>
+                <button class="btn-primary" onclick="checkout()" style="margin-top:1rem">Confirm Purchase</button>
+                <p style="font-size:.73rem;color:var(--text-muted);text-align:center;margin-top:.75rem;line-height:1.5">
+                  Present your reference number at the Cashier's Office to complete payment.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div><!-- /cart -->
+
+        <!-- ===== DOCUMENTS ===== -->
+        <div id="sec-documents" class="sec">
+          <div class="sec-head">
+            <h2>Document Requests</h2>
+            <p>Request official school documents. Processing time: 3–5 business days.</p>
+          </div>
+
+          <div class="doc-types">
+            <div class="doc-type-card selected" id="dc-TOR" onclick="selDoc('TOR')">
+              <div class="doc-icon">🎓</div>
+              <h4>Transcript of Records</h4>
+              <p>Official academic record</p>
+            </div>
+            <div class="doc-type-card" id="dc-COE" onclick="selDoc('COE')">
+              <div class="doc-icon">📜</div>
+              <h4>Certificate of Enrollment</h4>
+              <p>Proof of enrollment</p>
+            </div>
+            <div class="doc-type-card" id="dc-GOOD" onclick="selDoc('GOOD')">
+              <div class="doc-icon">✅</div>
+              <h4>Good Moral Certificate</h4>
+              <p>Character certification</p>
+            </div>
+            <div class="doc-type-card" id="dc-GRAD" onclick="selDoc('GRAD')">
+              <div class="doc-icon">🏅</div>
+              <h4>Graduation Certificate</h4>
+              <p>For graduates only</p>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:1.4rem">
+            <div class="card-header"><h3>Submit a Request</h3></div>
+            <div class="card-body">
+              <div class="frow" style="max-width:600px">
+                <div class="fld">
+                  <label>Document Type</label>
+                  <input id="doc-type" type="text" value="Transcript of Records" readonly
+                    style="background:var(--g50);border-color:var(--g400);font-weight:600;color:var(--g700)" />
+                </div>
+                <div class="fld">
+                  <label>Number of Copies</label>
+                  <select>
+                    <option>1 copy</option><option>2 copies</option><option>3 copies</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fld" style="max-width:600px">
+                <label>Purpose of Request</label>
+                <input id="doc-purpose" type="text" placeholder="State the purpose (e.g., Employment, Scholarship, Transfer)" />
+              </div>
+              <button class="btn-primary" style="width:auto;padding:.7rem 2rem;margin-top:.25rem" onclick="submitDoc()">
+                Submit Request
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>My Requests</h3></div>
+            <div class="card-body" id="req-history">
+              <div class="req-item">
+                <div class="req-icon-wrap">📜</div>
+                <div class="req-info">
+                  <h4>Certificate of Enrollment</h4>
+                  <p>Apr 28, 2026 · Scholarship application</p>
+                </div>
+                <span class="badge badge-green">Approved</span>
+              </div>
+              <div class="req-item">
+                <div class="req-icon-wrap">🎓</div>
+                <div class="req-info">
+                  <h4>Transcript of Records</h4>
+                  <p>Apr 15, 2026 · Employment</p>
+                </div>
+                <span class="badge badge-indigo">Released</span>
+              </div>
+            </div>
+          </div>
+        </div><!-- /documents -->
+
+        <!-- ===== PROFILE ===== -->
+        <div id="sec-profile" class="sec">
+          <div class="profile-banner">
+            <div class="prof-avatar-big" id="prof-av">JD</div>
+            <div class="prof-info">
+              <h2 id="prof-name">Student Name</h2>
+              <p id="prof-course-year">Course · Year</p>
+              <div class="prof-tags">
+                <span class="prof-tag" id="prof-id-badge">Student ID</span>
+                <span class="prof-tag">Regular Student</span>
+                <span class="prof-tag">Active</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="prof-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Student Information</h3>
+                <button class="tbl-btn">Edit Profile</button>
+              </div>
+              <div class="card-body">
+                <div class="info-row"><span class="info-label">Student ID</span><span class="info-value" id="pi-id">—</span></div>
+                <div class="info-row"><span class="info-label">Full Name</span><span class="info-value" id="pi-name">—</span></div>
+                <div class="info-row"><span class="info-label">Course</span><span class="info-value" id="pi-course">—</span></div>
+                <div class="info-row"><span class="info-label">Year Level</span><span class="info-value" id="pi-year">—</span></div>
+                <div class="info-row"><span class="info-label">Section</span><span class="info-value" id="pi-sec">—</span></div>
+                <div class="info-row"><span class="info-label">Academic Year</span><span class="info-value">2025–2026</span></div>
+                <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="badge badge-green">Active</span></span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Purchase History</h3></div>
+              <div class="card-body" id="tx-history">
+                <div class="empty-state" style="padding:2rem">
+                  <div class="empty-icon">💳</div>
+                  <p>No transactions recorded yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /profile -->
+
+      </div><!-- /page-content -->
+    </div><!-- /main-area -->
+  </div><!-- /app-shell -->
+</div><!-- /pg-app -->
+
+<!-- ============================================================
+     SCREEN: ADMIN PANEL
+     ============================================================ -->
+<div id="pg-admin" class="screen">
+  <div class="sb-overlay" id="admin-sb-overlay" onclick="closeAdminSb()"></div>
+  <div class="app-shell">
+
+    <!-- Admin Sidebar -->
+    <nav class="sidebar admin-sidebar" id="admin-sidebar">
+      <div class="sb-header">
+        <img class="sb-logo" src="assets/logo.png" alt="PLSP" />
+        <div>
+          <div class="sb-title">Admin Panel</div>
+          <div class="sb-subtitle">PLSP Portal</div>
+        </div>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-section-label">Overview</div>
+        <a class="sb-item active" data-admin-sec="a-overview" onclick="adSec('a-overview')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <div class="sb-section-label">Management</div>
+        <a class="sb-item" data-admin-sec="a-students" onclick="adSec('a-students')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Students
+        </a>
+        <a class="sb-item" data-admin-sec="a-products" onclick="adSec('a-products')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5v1a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M8 21V9M16 21V9"/></svg>
+          Products
+        </a>
+        <a class="sb-item" data-admin-sec="a-transactions" onclick="adSec('a-transactions')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Transactions
+        </a>
+        <a class="sb-item" data-admin-sec="a-requests" onclick="adSec('a-requests')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Doc Requests
+          <span class="sb-badge">2</span>
+        </a>
+      </div>
+      <div class="sb-footer">
+        <div class="sb-user">
+          <div class="sb-avatar" style="background:#3b82f6">A</div>
+          <div class="sb-user-info">
+            <div class="sb-user-name">Administrator</div>
+            <div class="sb-user-role">PLSP Staff</div>
+          </div>
+          <button class="sb-logout" onclick="go('pg-login')" title="Sign out">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Admin Main -->
+    <div class="main-area">
+      <!-- Admin topbar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleAdminSb()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <span class="topbar-title" style="color:#1e3a8a">Admin Dashboard</span>
+        </div>
+        <span class="sem-badge" style="background:#1e3a8a;color:white;border-radius:99px;padding:.28rem .9rem;font-size:.75rem;font-weight:600">PLSP Admin</span>
+      </div>
+
+      <!-- Mobile tab nav -->
+      <div class="admin-mobile-nav">
+        <button class="admin-tab active" data-admin-sec="a-overview" onclick="adSec('a-overview')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Overview
+        </button>
+        <button class="admin-tab" data-admin-sec="a-students" onclick="adSec('a-students')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Students
+        </button>
+        <button class="admin-tab" data-admin-sec="a-products" onclick="adSec('a-products')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M3 9l1-5h16l1 5v1a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+          Products
+        </button>
+        <button class="admin-tab" data-admin-sec="a-transactions" onclick="adSec('a-transactions')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Transactions
+        </button>
+        <button class="admin-tab" data-admin-sec="a-requests" onclick="adSec('a-requests')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+          Requests
+        </button>
+      </div>
+
+      <div class="page-content">
+
+        <!-- Overview -->
+        <div id="a-overview" class="sec show">
+          <div class="sec-head"><h2>Overview</h2><p>System-wide snapshot for the current academic year.</p></div>
+          <div class="stat-grid">
+            <div class="stat-card admin-stat admin-stat-green">
+              <div class="stat-icon" style="background:var(--g50)">👩‍🎓</div>
+              <h3 id="ad-stu-count">1</h3><p>Registered Students</p>
+            </div>
+            <div class="stat-card admin-stat admin-stat-gold">
+              <div class="stat-icon" style="background:var(--gold-bg)">💳</div>
+              <h3 id="ad-tx-count">0</h3><p>Total Transactions</p>
+            </div>
+            <div class="stat-card admin-stat admin-stat-blue">
+              <div class="stat-icon" style="background:#e3f2fd">📋</div>
+              <h3>2</h3><p>Pending Doc Requests</p>
+            </div>
+            <div class="stat-card admin-stat admin-stat-red">
+              <div class="stat-icon" style="background:var(--red-bg)">⚠️</div>
+              <h3>0</h3><p>Open Issues</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Recently Registered Students</h3></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Year</th><th>Status</th></tr></thead>
+                <tbody id="ad-stu-rows">
+                  <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">No students yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Students -->
+        <div id="a-students" class="sec">
+          <div class="sec-head"><h2>Student Records</h2><p>All registered students in the portal.</p></div>
+          <div class="card">
+            <div class="card-header">
+              <h3>All Students</h3>
+              <span class="badge badge-gray" id="stu-count-badge">1 student</span>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Student ID</th><th>Full Name</th><th>Course</th><th>Year Level</th><th>Section</th><th>Status</th></tr></thead>
+                <tbody id="ad-stu-rows-full">
+                  <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">No records.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div id="a-products" class="sec">
+          <div class="sec-head"><h2>Store Products</h2><p>Manage school store inventory.</p></div>
+          <div class="card">
+            <div class="card-header">
+              <h3>All Products</h3>
+              <button class="tbl-btn" onclick="toast('Feature coming soon.','amber','ℹ️')">+ Add Product</button>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead>
+                <tbody id="ad-prod-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions -->
+        <div id="a-transactions" class="sec">
+          <div class="sec-head"><h2>Transactions</h2><p>All student purchases processed through the portal.</p></div>
+          <div class="card">
+            <div class="card-header"><h3>Transaction Log</h3></div>
+            <div class="card-body" id="a-tx-list">
+              <div class="empty-state">
+                <div class="empty-icon">💳</div>
+                <h4>No transactions yet</h4>
+                <p>Student purchases will appear here once orders are placed.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doc Requests -->
+        <div id="a-requests" class="sec">
+          <div class="sec-head"><h2>Document Requests</h2><p>Process and manage student document requests.</p></div>
+          <div class="card">
+            <div class="card-header">
+              <h3>All Requests</h3>
+              <span class="badge badge-amber">2 Pending</span>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Student ID</th><th>Document</th><th>Purpose</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td>24-12345</td><td>Certificate of Enrollment</td><td>Scholarship</td><td>Apr 28, 2026</td>
+                    <td><span class="badge badge-green">Approved</span></td>
+                    <td><button class="tbl-btn">Release</button></td>
+                  </tr>
+                  <tr>
+                    <td>24-12345</td><td>Transcript of Records</td><td>Employment</td><td>Apr 15, 2026</td>
+                    <td><span class="badge badge-indigo">Released</span></td>
+                    <td><button class="tbl-btn" style="color:var(--text-muted)" disabled>—</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-content -->
+    </div><!-- /main-area -->
+  </div><!-- /app-shell -->
+</div><!-- /pg-admin -->
+
+
+<!-- ============================================================
+     PRODUCT QUICK VIEW MODAL
+     ============================================================ -->
+<div class="pv-backdrop" id="product-modal" onclick="if(event.target===this)closeProductModal()">
+  <div class="pv-modal">
+    <button class="pv-close" onclick="closeProductModal()" title="Close">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="pv-layout">
+      <!-- Left: Image -->
+      <div class="pv-left">
+        <div class="pv-image-box" id="pv-image-area">
+          <!-- populated by JS -->
+        </div>
+      </div>
+      <!-- Right: Details -->
+      <div class="pv-right">
+        <div class="pv-cat-row">
+          <span class="pv-category" id="pv-category"></span>
+          <div id="pv-tags" class="pv-tags-row"></div>
+        </div>
+        <h2 class="pv-title" id="pv-title"></h2>
+        <div class="pv-price" id="pv-price"></div>
+        <div class="pv-stock-row" id="pv-stock-label"></div>
+        <p class="pv-short-desc" id="pv-short-desc"></p>
+        <div class="pv-divider"></div>
+        <p class="pv-long-desc" id="pv-long-desc"></p>
+        <!-- Sizes -->
+        <div id="pv-sizes-container"></div>
+        <!-- Actions -->
+        <div class="pv-actions">
+          <button class="pv-add-btn" id="pv-add-cart-btn" onclick="addCartFromModal()">
+            &#128722; Add to Cart
+          </button>
+          <button class="pv-view-cart-btn" onclick="closeProductModal();sec('cart')">
+            View Cart
+          </button>
+        </div>
+        <p class="pv-note">&#128274; Secure cashless payment &bull; Present reference at Cashier&rsquo;s Office</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ---- Product Quick View Modal ---- */
+.pv-backdrop {
+  position: fixed; inset: 0; z-index: 4000;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s ease;
+}
+.pv-backdrop.show { opacity: 1; pointer-events: all; }
+.pv-modal {
+  background: white; border-radius: 20px;
+  width: 100%; max-width: 820px;
+  max-height: 90vh; overflow-y: auto;
+  position: relative;
+  transform: scale(.94) translateY(16px);
+  transition: transform .3s cubic-bezier(.34,1.4,.64,1);
+  box-shadow: 0 24px 80px rgba(0,0,0,.22);
+}
+.pv-backdrop.show .pv-modal { transform: scale(1) translateY(0); }
+.pv-modal::-webkit-scrollbar { width: 5px; }
+.pv-modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+.pv-close {
+  position: absolute; top: 1rem; right: 1rem; z-index: 10;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); transition: var(--transition);
+}
+.pv-close:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+.pv-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 480px;
+}
+.pv-left {
+  background: var(--g50);
+  border-radius: 20px 0 0 20px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem; min-height: 320px;
+}
+.pv-image-box {
+  width: 100%; max-width: 280px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pv-main-img {
+  width: 100%; height: auto; max-height: 320px;
+  object-fit: contain; border-radius: 12px;
+}
+.pv-emoji-fallback {
+  font-size: 7rem; display: flex;
+  align-items: center; justify-content: center;
+  width: 200px; height: 200px;
+}
+.pv-right {
+  padding: 2rem 2rem 2rem 1.75rem;
+  display: flex; flex-direction: column; gap: .6rem;
+}
+.pv-cat-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.pv-category {
+  font-size: .72rem; font-weight: 700;
+  color: var(--g700); text-transform: uppercase;
+  letter-spacing: .08em; background: var(--g100);
+  padding: .2rem .7rem; border-radius: 99px;
+}
+.pv-tags-row { display: flex; gap: .4rem; flex-wrap: wrap; }
+.pv-tag {
+  font-size: .7rem; font-weight: 600;
+  background: var(--gray1); color: var(--text-secondary);
+  padding: .18rem .6rem; border-radius: 99px;
+}
+.pv-title {
+  font-family: var(--display);
+  font-size: 1.35rem; font-weight: 800;
+  color: var(--text-primary); line-height: 1.25;
+  margin: .1rem 0;
+}
+.pv-price {
+  font-family: var(--display);
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--g700);
+}
+.pv-stock-row { margin: -.2rem 0; }
+.pv-stock-in  { font-size: .8rem; font-weight: 700; color: var(--g700); }
+.pv-stock-low { font-size: .8rem; font-weight: 700; color: var(--amber); }
+.pv-stock-out { font-size: .8rem; font-weight: 700; color: var(--red); }
+.pv-short-desc {
+  font-size: .88rem; color: var(--text-secondary);
+  font-weight: 500; line-height: 1.5;
+}
+.pv-divider {
+  height: 1px; background: var(--border);
+  margin: .2rem 0;
+}
+.pv-long-desc {
+  font-size: .84rem; color: var(--text-secondary);
+  line-height: 1.65;
+}
+.pv-section { margin-top: .5rem; }
+.pv-section-label {
+  font-size: .75rem; font-weight: 700;
+  color: var(--text-secondary); text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: .5rem;
+}
+.pv-sizes { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pv-size-btn {
+  padding: .38rem .75rem; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white; font-size: .82rem; font-weight: 600;
+  color: var(--text-secondary); transition: var(--transition);
+}
+.pv-size-btn:hover { border-color: var(--g400); color: var(--g700); }
+.pv-size-btn.active { border-color: var(--g600); background: var(--g100); color: var(--g800); font-weight: 700; }
+.pv-actions {
+  display: flex; gap: .75rem; margin-top: .5rem;
+  flex-wrap: wrap;
+}
+.pv-add-btn {
+  flex: 1; padding: .85rem 1.5rem;
+  background: var(--g700); color: white;
+  border: none; border-radius: 12px;
+  font-size: .95rem; font-weight: 700;
+  transition: var(--transition); min-width: 160px;
+}
+.pv-add-btn:hover { background: var(--g800); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.pv-view-cart-btn {
+  padding: .85rem 1.25rem;
+  background: white; color: var(--g700);
+  border: 1.5px solid var(--g700);
+  border-radius: 12px; font-size: .88rem; font-weight: 700;
+  transition: var(--transition);
+}
+.pv-view-cart-btn:hover { background: var(--g50); }
+.pv-note {
+  font-size: .73rem; color: var(--text-muted);
+  line-height: 1.5; margin-top: .25rem;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.shake { animation: shake .4s ease; }
+
+/* ---- Notification panel (CSS integrated here) ---- */
+.notif-wrap { position: relative; }
+.notif-panel {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 340px; background: white;
+  border-radius: var(--radius-lg); border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg); z-index: 500; overflow: hidden;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-8px) scale(.97);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.notif-panel.open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
+.notif-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem .75rem; border-bottom: 1px solid var(--border);
+}
+.notif-title { font-family: var(--display); font-size: .95rem; font-weight: 800; }
+.notif-clear-all {
+  background: none; border: none; font-size: .77rem; font-weight: 600;
+  color: var(--g600); cursor: pointer; padding: .2rem .4rem; border-radius: 6px;
+  transition: var(--transition);
+}
+.notif-clear-all:hover { background: var(--g50); }
+.notif-list { max-height: 360px; overflow-y: auto; }
+.notif-list::-webkit-scrollbar { width: 4px; }
+.notif-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+.notif-item {
+  display: flex; align-items: flex-start; gap: .85rem;
+  padding: .9rem 1.2rem; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .15s; position: relative;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--bg); }
+.notif-item.unread { background: #f0faf0; }
+.notif-item.unread:hover { background: #e6f7e6; }
+.notif-unread-dot {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--g500);
+}
+.notif-icon-wrap {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.ni-green  { background: var(--g100); }
+.ni-blue   { background: var(--blue-bg); }
+.ni-amber  { background: var(--amber-bg); }
+.ni-red    { background: var(--red-bg); }
+.ni-gold   { background: var(--gold-bg); }
+.ni-indigo { background: #e8eaf6; }
+.notif-content { flex: 1; min-width: 0; padding-right: .75rem; }
+.notif-content h4 { font-size: .84rem; font-weight: 700; line-height: 1.3; }
+.notif-content p  { font-size: .77rem; color: var(--text-secondary); margin-top: .2rem; line-height: 1.45; }
+.notif-time { font-size: .7rem; color: var(--text-muted); margin-top: .3rem; display: block; }
+.notif-empty { text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); }
+.notif-empty .ne-icon { font-size: 2.5rem; margin-bottom: .75rem; opacity: .5; }
+.notif-empty p { font-size: .84rem; }
+.notif-footer {
+  padding: .85rem 1.2rem; border-top: 1px solid var(--border);
+  text-align: center; font-size: .8rem; font-weight: 600;
+  color: var(--g600); cursor: pointer; transition: background .15s;
+}
+.notif-footer:hover { background: var(--g50); }
+.notif-count {
+  position: absolute; top: 2px; right: 2px;
+  background: var(--red); color: white;
+  font-size: .6rem; font-weight: 800;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid white; line-height: 1;
+}
+
+/* ---- Store card enhancements ---- */
+.product-card { cursor: pointer; }
+.prod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: .5rem; gap: .5rem; flex-wrap: wrap; }
+.prod-stock {
+  font-size: .7rem; font-weight: 700; padding: .18rem .55rem;
+  border-radius: 99px; white-space: nowrap;
+}
+.in-stock  { background: var(--g100); color: var(--g800); }
+.low-stock { background: var(--amber-bg); color: var(--amber); }
+.no-stock  { background: var(--red-bg); color: var(--red); }
+
+/* Responsive PV */
+@media (max-width: 640px) {
+  .pv-layout { grid-template-columns: 1fr; }
+  .pv-left { border-radius: 20px 20px 0 0; min-height: 220px; padding: 1.5rem; }
+  .pv-right { padding: 1.5rem; }
+  .notif-panel { width: 300px; right: -50px; }
+}
+</style>
+
+<script src="js/app.js"></script>
+
+<!-- Admin students full table sync -->
+<script>
+// Keep admin full student table in sync
+var _origUpdateAdminStats = updateAdminStats;
+updateAdminStats = function() {
+  _origUpdateAdminStats();
+  // Also update full students table
+  var full = document.getElementById('ad-stu-rows-full');
+  if (full) {
+    full.innerHTML = users.length
+      ? users.map(function(u) {
+          return '<tr><td>'+u.id+'</td><td>'+u.name+'</td><td>'+u.course+'</td><td>'+u.year+'</td><td>'+u.sec+'</td><td><span class="badge badge-green">Active</span></td></tr>';
+        }).join('')
+      : '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">No records.</td></tr>';
+  }
+  var badge = document.getElementById('stu-count-badge');
+  if (badge) badge.textContent = users.length + ' student' + (users.length !== 1 ? 's' : '');
+};
+</script>
+</body>
+</html>
