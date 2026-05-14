@@ -597,81 +597,121 @@
 
         <!-- ===== DOCUMENTS ===== -->
         <div id="sec-documents" class="sec">
-          <div class="sec-head">
-            <h2>Document Requests</h2>
-            <p>Request official school documents. Processing time: 3–5 business days.</p>
-          </div>
-
-          <div class="doc-types">
-            <div class="doc-type-card selected" id="dc-TOR" onclick="selDoc('TOR')">
-              <div class="doc-icon">🎓</div>
-              <h4>Transcript of Records</h4>
-              <p>Official academic record</p>
-            </div>
-            <div class="doc-type-card" id="dc-COE" onclick="selDoc('COE')">
-              <div class="doc-icon">📜</div>
-              <h4>Certificate of Enrollment</h4>
-              <p>Proof of enrollment</p>
-            </div>
-            <div class="doc-type-card" id="dc-GOOD" onclick="selDoc('GOOD')">
-              <div class="doc-icon">✅</div>
-              <h4>Good Moral Certificate</h4>
-              <p>Character certification</p>
-            </div>
-            <div class="doc-type-card" id="dc-GRAD" onclick="selDoc('GRAD')">
-              <div class="doc-icon">🏅</div>
-              <h4>Graduation Certificate</h4>
-              <p>For graduates only</p>
+          <div class="sec-head-row">
+            <div>
+              <h2>Documents &amp; Modules</h2>
+              <p>Request official documents and access learning materials from your teachers.</p>
             </div>
           </div>
 
-          <div class="card" style="margin-bottom:1.4rem">
-            <div class="card-header"><h3>Submit a Request</h3></div>
-            <div class="card-body">
-              <div class="frow" style="max-width:600px">
-                <div class="fld">
-                  <label>Document Type</label>
-                  <input id="doc-type" type="text" value="Transcript of Records" readonly
-                    style="background:var(--g50);border-color:var(--g400);font-weight:600;color:var(--g700)" />
+          <!-- Tab bar -->
+          <div class="doc-tabs">
+            <button class="doc-tab active" data-dtab="requests" onclick="docTab('requests')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Document Requests
+            </button>
+            <button class="doc-tab" data-dtab="modules" onclick="docTab('modules')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+              Learning Modules
+            </button>
+          </div>
+
+          <!-- ── PANEL: REQUESTS ── -->
+          <div id="dpanel-requests" class="doc-panel">
+
+            <div class="doc-types">
+              <div class="doc-type-card selected" id="dc-TOR" onclick="selDoc('TOR')">
+                <div class="doc-icon">🎓</div><h4>Transcript of Records</h4><p>Official academic record</p>
+              </div>
+              <div class="doc-type-card" id="dc-COE" onclick="selDoc('COE')">
+                <div class="doc-icon">📜</div><h4>Certificate of Enrollment</h4><p>Proof of enrollment</p>
+              </div>
+              <div class="doc-type-card" id="dc-GOOD" onclick="selDoc('GOOD')">
+                <div class="doc-icon">✅</div><h4>Good Moral Certificate</h4><p>Character certification</p>
+              </div>
+              <div class="doc-type-card" id="dc-GRAD" onclick="selDoc('GRAD')">
+                <div class="doc-icon">🏅</div><h4>Graduation Certificate</h4><p>For graduates only</p>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:1.25rem">
+              <div class="card-header"><h3>Submit a Request</h3></div>
+              <div class="card-body">
+                <div class="frow" style="max-width:660px">
+                  <div class="fld">
+                    <label>Document Type</label>
+                    <input id="doc-type" type="text" value="Transcript of Records" readonly
+                      style="background:var(--g50);border-color:var(--g400);font-weight:600;color:var(--g700)" />
+                  </div>
+                  <div class="fld">
+                    <label>Number of Copies</label>
+                    <select id="doc-copies">
+                      <option value="1">1 copy</option><option value="2">2 copies</option><option value="3">3 copies</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="fld">
-                  <label>Number of Copies</label>
-                  <select>
-                    <option>1 copy</option><option>2 copies</option><option>3 copies</option>
-                  </select>
+                <div class="fld" style="max-width:660px">
+                  <label>Purpose of Request</label>
+                  <input id="doc-purpose" type="text" placeholder="e.g., Employment, Scholarship, Board Exam, Transfer" />
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                  <button class="btn-primary" style="width:auto;padding:.7rem 2rem" onclick="submitDoc()">Submit Request</button>
+                  <p style="font-size:.78rem;color:var(--text-muted)">&#128274; Processing time: 3–5 business days</p>
                 </div>
               </div>
-              <div class="fld" style="max-width:600px">
-                <label>Purpose of Request</label>
-                <input id="doc-purpose" type="text" placeholder="State the purpose (e.g., Employment, Scholarship, Transfer)" />
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>My Requests</h3>
+                <span id="req-count-badge" class="badge badge-gray">2 requests</span>
               </div>
-              <button class="btn-primary" style="width:auto;padding:.7rem 2rem;margin-top:.25rem" onclick="submitDoc()">
-                Submit Request
+              <div class="card-body" id="req-history"></div>
+            </div>
+
+            <div class="status-legend">
+              <span class="badge badge-amber">Pending</span> Submitted, awaiting review &nbsp;&bull;&nbsp;
+              <span class="badge badge-blue">Processing</span> Being prepared &nbsp;&bull;&nbsp;
+              <span class="badge badge-green">Ready for Pickup</span> Visit Registrar's Office &nbsp;&bull;&nbsp;
+              <span class="badge badge-indigo">Released</span> Completed
+            </div>
+          </div>
+
+          <!-- ── PANEL: MODULES ── -->
+          <div id="dpanel-modules" class="doc-panel" style="display:none">
+
+            <!-- Semester selector for modules -->
+            <div class="mod-sem-bar">
+              <div class="mod-sem-tabs" id="mod-sem-tabs">
+                <button class="mod-sem-btn active" data-sem="1st-2526" onclick="switchModSem(this,'1st-2526')">1st Sem 2025–26</button>
+                <button class="mod-sem-btn" data-sem="2nd-2425" onclick="switchModSem(this,'2nd-2425')">2nd Sem 2024–25</button>
+                <button class="mod-sem-btn" data-sem="1st-2425" onclick="switchModSem(this,'1st-2425')">1st Sem 2024–25</button>
+              </div>
+            </div>
+
+            <!-- Subject folder grid -->
+            <div id="mod-folders-view">
+              <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1rem">Select a subject to view its uploaded modules.</p>
+              <div class="subject-folders" id="subject-folders"></div>
+            </div>
+
+            <!-- Module list inside a folder -->
+            <div id="mod-list-view" style="display:none">
+              <button class="mod-back-btn" onclick="closeModFolder()">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to Subjects
               </button>
+              <div class="mod-folder-header">
+                <div class="mod-folder-icon">📁</div>
+                <div>
+                  <h3 id="open-folder-title">Subject Name</h3>
+                  <p id="open-folder-meta" style="font-size:.8rem;color:var(--text-muted)"></p>
+                </div>
+              </div>
+              <div id="mod-list-grid" class="modules-grid"></div>
             </div>
           </div>
 
-          <div class="card">
-            <div class="card-header"><h3>My Requests</h3></div>
-            <div class="card-body" id="req-history">
-              <div class="req-item">
-                <div class="req-icon-wrap">📜</div>
-                <div class="req-info">
-                  <h4>Certificate of Enrollment</h4>
-                  <p>Apr 28, 2026 · Scholarship application</p>
-                </div>
-                <span class="badge badge-green">Approved</span>
-              </div>
-              <div class="req-item">
-                <div class="req-icon-wrap">🎓</div>
-                <div class="req-info">
-                  <h4>Transcript of Records</h4>
-                  <p>Apr 15, 2026 · Employment</p>
-                </div>
-                <span class="badge badge-indigo">Released</span>
-              </div>
-            </div>
-          </div>
         </div><!-- /documents -->
 
         <!-- ===== PROFILE ===== -->
@@ -760,7 +800,11 @@
         <a class="sb-item" data-admin-sec="a-requests" onclick="adSec('a-requests')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Doc Requests
-          <span class="sb-badge">2</span>
+          <span class="sb-badge" id="ad-req-sb-badge">2</span>
+        </a>
+        <a class="sb-item" data-admin-sec="a-modules" onclick="adSec('a-modules')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          Learning Modules
         </a>
       </div>
       <div class="sb-footer">
@@ -811,6 +855,10 @@
         <button class="admin-tab" data-admin-sec="a-requests" onclick="adSec('a-requests')">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
           Requests
+        </button>
+        <button class="admin-tab" data-admin-sec="a-modules" onclick="adSec('a-modules')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="14" height="14"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          Modules
         </button>
       </div>
 
@@ -903,29 +951,132 @@
 
         <!-- Doc Requests -->
         <div id="a-requests" class="sec">
-          <div class="sec-head"><h2>Document Requests</h2><p>Process and manage student document requests.</p></div>
+          <div class="sec-head"><h2>Document Requests</h2><p>Review, process, and upload completed document requests.</p></div>
+
+          <div class="admin-filters">
+            <select id="ad-req-filter-status" onchange="renderAdminDocRequests()" class="admin-filter-select">
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="ready">Ready for Pickup</option>
+              <option value="released">Released</option>
+            </select>
+            <select id="ad-req-filter-type" onchange="renderAdminDocRequests()" class="admin-filter-select">
+              <option value="all">All Document Types</option>
+              <option value="TOR">Transcript of Records</option>
+              <option value="COE">Certificate of Enrollment</option>
+              <option value="GOOD">Good Moral Certificate</option>
+              <option value="GRAD">Graduation Certificate</option>
+            </select>
+          </div>
+
           <div class="card">
             <div class="card-header">
               <h3>All Requests</h3>
-              <span class="badge badge-amber">2 Pending</span>
+              <span class="badge badge-amber" id="ad-req-badge">2 Pending</span>
             </div>
             <div class="tbl-wrap">
               <table>
-                <thead><tr><th>Student ID</th><th>Document</th><th>Purpose</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td>24-12345</td><td>Certificate of Enrollment</td><td>Scholarship</td><td>Apr 28, 2026</td>
-                    <td><span class="badge badge-green">Approved</span></td>
-                    <td><button class="tbl-btn">Release</button></td>
-                  </tr>
-                  <tr>
-                    <td>24-12345</td><td>Transcript of Records</td><td>Employment</td><td>Apr 15, 2026</td>
-                    <td><span class="badge badge-indigo">Released</span></td>
-                    <td><button class="tbl-btn" style="color:var(--text-muted)" disabled>—</button></td>
-                  </tr>
-                </tbody>
+                <thead><tr><th>Ref ID</th><th>Student</th><th>Document</th><th>Purpose</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="ad-req-body"></tbody>
               </table>
             </div>
+          </div>
+
+          <div class="workflow-guide">
+            <h4>&#128196; Processing Workflow</h4>
+            <div class="workflow-steps">
+              <div class="wf-step"><span class="badge badge-amber">1 Pending</span><span>Student submitted</span></div>
+              <div class="wf-arrow">&#8594;</div>
+              <div class="wf-step"><span class="badge badge-blue">2 Processing</span><span>Click "Mark Processing"</span></div>
+              <div class="wf-arrow">&#8594;</div>
+              <div class="wf-step"><span class="badge badge-green">3 Ready</span><span>Upload file → notifies student</span></div>
+              <div class="wf-arrow">&#8594;</div>
+              <div class="wf-step"><span class="badge badge-indigo">4 Released</span><span>After student picks up</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learning Modules Admin -->
+        <div id="a-modules" class="sec">
+          <div class="sec-head"><h2>Learning Modules</h2><p>Upload files for students. Modules are organized by semester and subject — students see them as folders.</p></div>
+
+          <!-- Upload form -->
+          <div class="card" style="margin-bottom:1.4rem">
+            <div class="card-header">
+              <h3>&#8679; Upload New Module</h3>
+              <span class="badge badge-blue">Visible to all students</span>
+            </div>
+            <div class="card-body">
+              <div class="frow">
+                <div class="fld">
+                  <label>Module Title <span style="color:var(--red)">*</span></label>
+                  <input id="mod-title" type="text" placeholder="e.g., Midterm Review — Data Structures" />
+                </div>
+                <div class="fld">
+                  <label>Subject Code <span style="color:var(--red)">*</span></label>
+                  <input id="mod-subject" type="text" placeholder="e.g., IT 301" />
+                </div>
+              </div>
+              <div class="frow">
+                <div class="fld">
+                  <label>Semester <span style="color:var(--red)">*</span></label>
+                  <select id="mod-sem">
+                    <option value="1st-2526">1st Sem 2025–26</option>
+                    <option value="2nd-2425">2nd Sem 2024–25</option>
+                    <option value="1st-2425">1st Sem 2024–25</option>
+                  </select>
+                </div>
+                <div class="fld">
+                  <label>Material Type</label>
+                  <select id="mod-type">
+                    <option value="PDF">PDF Module</option>
+                    <option value="Handout">Lecture Handout</option>
+                    <option value="Worksheet">Worksheet</option>
+                    <option value="Review">Review Material</option>
+                    <option value="Assignment">Assignment</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fld">
+                <label>Description <span style="color:var(--red)">*</span></label>
+                <input id="mod-desc" type="text" placeholder="Brief description of this material..." />
+              </div>
+              <div class="fld">
+                <label>File Upload <span style="color:var(--gray3);font-weight:400">(PDF, DOC, DOCX, PPTX)</span></label>
+                <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('mod-file').click()"
+                  ondragover="event.preventDefault();this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="event.preventDefault();this.classList.remove('drag-over');handleModFileDrop(event)">
+                  <div class="fdz-icon">&#128196;</div>
+                  <div class="fdz-text" id="fdz-text">Click or drag a file here to upload</div>
+                  <div class="fdz-sub">Max 10MB &middot; PDF, DOC, DOCX, PPTX</div>
+                  <input type="file" id="mod-file" accept=".pdf,.doc,.docx,.pptx" style="display:none" onchange="handleModFileSelect(this)" />
+                </div>
+              </div>
+              <button class="btn-primary" style="width:auto;padding:.7rem 2rem" onclick="adminUploadModule()">&#8679; Upload Module</button>
+            </div>
+          </div>
+
+          <!-- Filter + list -->
+          <div class="admin-filters" style="margin-bottom:1rem">
+            <select id="ad-mod-filter-sem" onchange="renderAdminModules()" class="admin-filter-select">
+              <option value="all">All Semesters</option>
+              <option value="1st-2526">1st Sem 2025–26</option>
+              <option value="2nd-2425">2nd Sem 2024–25</option>
+              <option value="1st-2425">1st Sem 2024–25</option>
+            </select>
+            <select id="ad-mod-filter-subj" onchange="renderAdminModules()" class="admin-filter-select">
+              <option value="all">All Subjects</option>
+            </select>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Uploaded Modules</h3>
+              <span class="badge badge-gray" id="ad-mod-count">5 modules</span>
+            </div>
+            <div class="card-body" id="ad-modules-list"></div>
           </div>
         </div>
 
