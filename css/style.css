@@ -1040,3 +1040,160 @@ tbody tr:hover td { background: var(--g50); }
   .auth-form-panel { padding: 1.5rem 1.25rem; }
   .auth-form-inner { max-width: 100%; }
 }
+
+/* =====================================================
+   DOCUMENTS & MODULES — Styles
+   ===================================================== */
+
+/* Section header row */
+.sec-head-row { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:.75rem; }
+.sec-head-row h2 { font-family:var(--display); font-size:1.3rem; font-weight:800; }
+.sec-head-row p  { font-size:.86rem; color:var(--text-secondary); margin-top:.25rem; }
+
+/* ── Doc tabs ── */
+.doc-tabs {
+  display:flex; gap:.3rem; margin-bottom:1.5rem;
+  background:white; border:1px solid var(--border);
+  border-radius:var(--radius-md); padding:.35rem; width:fit-content;
+  box-shadow:var(--shadow-xs);
+}
+.doc-tab {
+  display:flex; align-items:center; gap:.45rem;
+  padding:.5rem 1.15rem; border-radius:var(--radius-sm);
+  border:none; background:none;
+  font-family:var(--font); font-size:.85rem; font-weight:600;
+  color:var(--text-muted); cursor:pointer; transition:var(--transition);
+}
+.doc-tab.active { background:var(--g700); color:white; }
+.doc-tab:not(.active):hover { background:var(--bg); color:var(--text-primary); }
+.doc-panel { animation: sec-in .22s ease; }
+
+/* ── Semester tab bar (inside modules panel) ── */
+.mod-sem-bar { margin-bottom:1.25rem; }
+.mod-sem-tabs { display:flex; flex-wrap:wrap; gap:.45rem; }
+.mod-sem-btn {
+  padding:.42rem 1.1rem; border-radius:99px;
+  border:1.5px solid var(--border); background:white;
+  font-family:var(--font); font-size:.82rem; font-weight:600;
+  color:var(--text-secondary); cursor:pointer; transition:var(--transition);
+}
+.mod-sem-btn.active { background:var(--g700); border-color:var(--g700); color:white; box-shadow:var(--shadow-sm); }
+.mod-sem-btn:not(.active):hover { border-color:var(--g400); color:var(--g600); }
+
+/* ── Subject folder grid ── */
+.subject-folders {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(210px,1fr));
+  gap:1rem;
+}
+.subject-folder-card {
+  background:white; border:1.5px solid var(--border);
+  border-radius:var(--radius-lg); padding:1.1rem 1.2rem;
+  display:flex; align-items:center; gap:.9rem;
+  cursor:pointer; transition:var(--transition);
+  box-shadow:var(--shadow-xs);
+}
+.subject-folder-card:hover { border-color:var(--g400); background:var(--g50); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.sfc-icon { font-size:2rem; flex-shrink:0; }
+.sfc-body { flex:1; min-width:0; }
+.sfc-body h4 { font-size:.9rem; font-weight:700; display:flex; align-items:center; gap:.4rem; }
+.sfc-body p  { font-size:.75rem; color:var(--text-muted); margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sfc-new-dot { width:7px; height:7px; border-radius:50%; background:var(--red); display:inline-block; flex-shrink:0; }
+.sfc-count { text-align:center; flex-shrink:0; }
+.sfc-num { display:block; font-family:var(--display); font-size:1.3rem; font-weight:800; color:var(--g700); line-height:1; }
+.sfc-lbl { font-size:.68rem; color:var(--text-muted); font-weight:500; }
+
+/* ── Module folder header (inside folder) ── */
+.mod-folder-header { display:flex; align-items:center; gap:1rem; margin:1rem 0 1.25rem; padding:1rem 1.25rem; background:var(--g50); border-radius:var(--radius-lg); border:1px solid var(--border); }
+.mod-folder-icon { font-size:2rem; }
+.mod-folder-header h3 { font-size:1.05rem; font-weight:800; }
+.mod-back-btn {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background:none; border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); padding:.4rem .9rem;
+  font-family:var(--font); font-size:.82rem; font-weight:600;
+  color:var(--text-secondary); cursor:pointer; margin-bottom:.75rem;
+  transition:var(--transition);
+}
+.mod-back-btn:hover { border-color:var(--g400); color:var(--g600); }
+
+/* ── Module cards ── */
+.modules-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:1.1rem; }
+.module-card {
+  background:white; border-radius:var(--radius-lg); border:1px solid var(--border);
+  padding:1.2rem; display:flex; flex-direction:column; gap:.55rem;
+  box-shadow:var(--shadow-xs); transition:var(--transition);
+}
+.module-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.mod-header { display:flex; align-items:center; justify-content:space-between; }
+.mod-type-badge { font-size:.7rem; font-weight:700; padding:.2rem .65rem; border-radius:99px; }
+.mod-size  { font-size:.72rem; color:var(--text-muted); }
+.mod-icon  { font-size:1.75rem; }
+.mod-title { font-size:.9rem; font-weight:700; color:var(--text-primary); line-height:1.35; }
+.mod-desc  { font-size:.78rem; color:var(--text-secondary); line-height:1.55; flex:1; }
+.mod-meta  { display:flex; justify-content:space-between; flex-wrap:wrap; gap:.3rem; align-items:center; }
+.mod-subject  { font-size:.72rem; font-weight:700; color:var(--g700); background:var(--g100); padding:.15rem .55rem; border-radius:99px; }
+.mod-uploader { font-size:.71rem; color:var(--text-muted); }
+.mod-footer { display:flex; justify-content:space-between; align-items:center; margin-top:.2rem; }
+.mod-date   { font-size:.71rem; color:var(--text-muted); }
+.mod-dl-btn { background:var(--g700); color:white; border:none; border-radius:var(--radius-sm); padding:.32rem .85rem; font-size:.77rem; font-weight:700; cursor:pointer; transition:var(--transition); }
+.mod-dl-btn:hover { background:var(--g800); }
+.mod-dl-demo { background:var(--gray2); color:var(--text-secondary); }
+.mod-dl-demo:hover { background:var(--g600); color:white; }
+
+/* ── Request history enhancements ── */
+.req-ref { font-size:.7rem; font-weight:700; color:var(--text-muted); margin-left:.35rem; }
+.req-act-cell { display:flex; flex-direction:column; align-items:flex-end; gap:.35rem; flex-shrink:0; }
+.req-dl-btn { background:var(--g700); color:white; border:none; border-radius:var(--radius-sm); padding:.28rem .75rem; font-size:.74rem; font-weight:700; cursor:pointer; white-space:nowrap; transition:var(--transition); }
+.req-dl-btn:hover { background:var(--g800); }
+.req-pickup-note { font-size:.73rem; color:var(--g600); font-weight:600; white-space:nowrap; }
+
+/* ── Status legend ── */
+.status-legend { margin-top:1rem; padding:.85rem 1.2rem; background:white; border-radius:var(--radius-md); border:1px solid var(--border); font-size:.77rem; color:var(--text-secondary); display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; }
+
+/* ── Admin ── */
+.admin-filters { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1.25rem; }
+.admin-filter-select { border-radius:var(--radius-md); padding:.55rem .9rem; border:1.5px solid var(--border); font-family:var(--font); font-size:.84rem; background:white; color:var(--text-primary); cursor:pointer; transition:var(--transition); }
+.admin-filter-select:focus { border-color:var(--g400); outline:none; }
+
+/* ── Workflow guide ── */
+.workflow-guide { margin-top:1.25rem; background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:1.1rem 1.35rem; }
+.workflow-guide h4 { font-size:.88rem; font-weight:700; color:var(--text-secondary); margin-bottom:.9rem; }
+.workflow-steps { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; }
+.wf-step { display:flex; flex-direction:column; align-items:center; gap:.3rem; font-size:.74rem; color:var(--text-secondary); text-align:center; min-width:105px; }
+.wf-arrow { color:var(--text-muted); font-size:1.1rem; }
+
+/* ── Admin module rows ── */
+.admin-mod-row { display:flex; align-items:flex-start; gap:1rem; padding:.9rem 0; border-bottom:1px solid var(--border); }
+.admin-mod-row:last-child { border:none; }
+.admin-mod-icon { width:40px; height:40px; border-radius:10px; background:var(--blue-bg); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+.admin-mod-info { flex:1; }
+.admin-mod-info h4 { font-size:.9rem; font-weight:700; }
+.admin-mod-info p  { font-size:.78rem; color:var(--text-secondary); margin-top:.15rem; }
+.admin-mod-actions { flex-shrink:0; }
+
+/* ── File drop zone ── */
+.file-drop-zone {
+  border:2px dashed var(--border2); border-radius:var(--radius-md);
+  padding:1.75rem; text-align:center; cursor:pointer;
+  background:var(--bg); transition:var(--transition);
+}
+.file-drop-zone:hover, .file-drop-zone.drag-over { border-color:var(--g400); background:var(--g50); }
+.fdz-icon { font-size:1.75rem; margin-bottom:.5rem; }
+.fdz-text { font-size:.86rem; font-weight:600; color:var(--text-primary); }
+.fdz-sub  { font-size:.74rem; color:var(--text-muted); margin-top:.25rem; }
+.tbl-upload-btn { display:inline-flex; align-items:center; gap:.3rem; padding:.28rem .75rem; border-radius:var(--radius-sm); border:1.5px solid var(--g400); background:var(--g50); font-size:.74rem; font-weight:700; color:var(--g700); cursor:pointer; transition:var(--transition); }
+.tbl-upload-btn:hover { background:var(--g100); border-color:var(--g600); }
+.tbl-btn-danger:hover { border-color:var(--red); color:var(--red); background:var(--red-bg); }
+
+/* Responsive */
+@media(max-width:640px) {
+  .subject-folders { grid-template-columns:1fr 1fr; }
+  .modules-grid    { grid-template-columns:1fr; }
+  .workflow-steps  { flex-direction:column; }
+  .wf-arrow        { transform:rotate(90deg); }
+  .doc-tabs        { width:100%; }
+  .doc-tab         { flex:1; justify-content:center; }
+  .mod-sem-tabs    { gap:.35rem; }
+  .mod-sem-btn     { font-size:.78rem; padding:.38rem .85rem; }
+}
