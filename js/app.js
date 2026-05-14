@@ -660,3 +660,367 @@ document.addEventListener('keydown',function(e){
 document.addEventListener('DOMContentLoaded',function(){
   renderStore('all');renderAcademic();renderNotifBadge();
 });
+
+/* =====================================================
+   DOCUMENTS & MODULES SYSTEM
+   ===================================================== */
+
+/* ── DATA ── */
+var docRequests = [
+  { id:'REQ-001', studentId:'24-12345', studentName:'Juan dela Cruz', type:'COE', typeFull:'Certificate of Enrollment', purpose:'Scholarship application', copies:1, date:'Apr 28, 2026', status:'ready',    fileData:null, fileName:null },
+  { id:'REQ-002', studentId:'24-12345', studentName:'Juan dela Cruz', type:'TOR', typeFull:'Transcript of Records',     purpose:'Employment',             copies:1, date:'Apr 15, 2026', status:'released', fileData:null, fileName:null }
+];
+var modules = [
+  { id:'MOD-001', title:'Data Structures — Week 1-4 Notes',   subject:'IT 301',   sem:'1st-2526', type:'PDF',      desc:'Covers arrays, linked lists, stacks, and queues.',          uploader:'Prof. Reyes',    date:'May 1, 2026',  fileData:null, fileName:'IT301_W1-4.pdf',       size:'2.4 MB' },
+  { id:'MOD-002', title:'Web Development Fundamentals',        subject:'IT 302',   sem:'1st-2526', type:'Handout',  desc:'HTML, CSS, and JavaScript basics.',                         uploader:'Prof. Santos',   date:'Apr 28, 2026', fileData:null, fileName:'IT302_WebFundamentals.pdf', size:'3.1 MB' },
+  { id:'MOD-003', title:'SQL and Database Design',             subject:'IT 303',   sem:'1st-2526', type:'PDF',      desc:'ER diagrams, normalization, and SQL queries.',               uploader:'Prof. Garcia',   date:'Apr 25, 2026', fileData:null, fileName:'IT303_SQL.pdf',         size:'1.8 MB' },
+  { id:'MOD-004', title:'Midterm Review — Discrete Math',      subject:'MATH 201', sem:'1st-2526', type:'Worksheet',desc:'Practice problems for midterm examination.',                 uploader:'Prof. Cruz',     date:'Apr 20, 2026', fileData:null, fileName:'MATH201_Review.pdf',    size:'890 KB' },
+  { id:'MOD-005', title:'OOP Concepts and Design Patterns',    subject:'IT 201',   sem:'2nd-2425', type:'PDF',      desc:'Object-oriented principles and common design patterns.',     uploader:'Prof. Dela Cruz',date:'Jan 15, 2025', fileData:null, fileName:'IT201_OOP.pdf',         size:'1.2 MB' },
+  { id:'MOD-006', title:'Computer Networks — OSI Model',       subject:'IT 202',   sem:'2nd-2425', type:'Handout',  desc:'Layers of the OSI model explained with examples.',           uploader:'Prof. Bautista', date:'Jan 10, 2025', fileData:null, fileName:'IT202_OSI.pdf',         size:'960 KB' },
+  { id:'MOD-007', title:'Introduction to Computing Worksheet', subject:'IT 101',   sem:'1st-2425', type:'Worksheet',desc:'First-semester worksheet for IT 101 students.',              uploader:'Prof. Aquino',   date:'Aug 20, 2024', fileData:null, fileName:'IT101_WS1.pdf',         size:'540 KB' }
+];
+var DOC_STATUS       = { pending:'Pending', processing:'Processing', ready:'Ready for Pickup', released:'Released' };
+var DOC_STATUS_BADGE = { pending:'badge-amber', processing:'badge-blue', ready:'badge-green', released:'badge-indigo' };
+var docReqCounter  = 3;
+var modCounter     = 8;
+var currentModSem  = '1st-2526'; /* tracks which semester tab is active in student modules */
+
+/* ── STUDENT: Tab switcher ── */
+function docTab(tab) {
+  document.querySelectorAll('.doc-tab').forEach(function(b){ b.classList.toggle('active', b.dataset.dtab === tab); });
+  document.getElementById('dpanel-requests').style.display = tab === 'requests' ? 'block' : 'none';
+  document.getElementById('dpanel-modules').style.display  = tab === 'modules'  ? 'block' : 'none';
+  if (tab === 'requests') renderMyRequests();
+  if (tab === 'modules')  { syncModSemToGlobal(); renderSubjectFolders(); }
+}
+
+/* ── STUDENT: Sync module semester tabs to global semester selector ── */
+function syncModSemToGlobal() {
+  /* when student opens modules tab, pre-select the semester that matches the topbar */
+  var semToUse = currentSem || '1st-2526';
+  currentModSem = semToUse;
+  document.querySelectorAll('.mod-sem-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.sem === semToUse);
+  });
+  /* also sync the topbar dropdown visually */
+  var sel = document.getElementById('sem-selector');
+  if (sel) sel.value = semToUse;
+}
+
+/* ── STUDENT: Switch module semester tab ── */
+function switchModSem(btn, sem) {
+  currentModSem = sem;
+  document.querySelectorAll('.mod-sem-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.sem === sem); });
+  /* also update global semester selector */
+  var sel = document.getElementById('sem-selector');
+  if (sel) sel.value = sem;
+  currentSem = sem;
+  closeModFolder();
+  renderSubjectFolders();
+  toast('Switched to ' + (SEMESTERS[sem] ? SEMESTERS[sem].label : sem), 'green', '📅');
+}
+
+/* ── STUDENT: Render subject folders for current semester ── */
+function renderSubjectFolders() {
+  var grid = document.getElementById('subject-folders'); if (!grid) return;
+  var sem  = currentModSem;
+
+  /* Collect subjects that have modules in this semester */
+  var subjectsWithMods = {};
+  modules.forEach(function(m) {
+    if (m.sem !== sem) return;
+    if (!subjectsWithMods[m.subject]) subjectsWithMods[m.subject] = 0;
+    subjectsWithMods[m.subject]++;
+  });
+
+  /* Also collect from student's schedule for this semester so folders appear even if 0 modules */
+  var schedData = SEMESTERS[sem] ? SEMESTERS[sem].schedule : [];
+  schedData.forEach(function(s) {
+    if (!subjectsWithMods[s.code]) subjectsWithMods[s.code] = 0;
+  });
+
+  var subjects = Object.keys(subjectsWithMods);
+
+  if (!subjects.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:3rem"><div class="empty-icon">📂</div><h4>No subjects this semester</h4><p>No schedule or modules found for this semester.</p></div>';
+    return;
+  }
+
+  /* Build instructor map from schedule */
+  var instrMap = {};
+  schedData.forEach(function(s){ instrMap[s.code] = s.instructor; });
+
+  grid.innerHTML = subjects.map(function(subj) {
+    var count = subjectsWithMods[subj];
+    var instr = instrMap[subj] || '';
+    var hasNew = modules.some(function(m){ return m.sem === sem && m.subject === subj && !m.seen; });
+    return '<div class="subject-folder-card" onclick="openModFolder(\'' + subj + '\')">'
+      + '<div class="sfc-icon">📁</div>'
+      + '<div class="sfc-body">'
+      + '<h4>' + subj + (hasNew ? ' <span class="sfc-new-dot"></span>' : '') + '</h4>'
+      + (instr ? '<p>' + instr + '</p>' : '')
+      + '</div>'
+      + '<div class="sfc-count">'
+      + '<span class="sfc-num">' + count + '</span>'
+      + '<span class="sfc-lbl">' + (count === 1 ? 'file' : 'files') + '</span>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ── STUDENT: Open subject folder ── */
+function openModFolder(subj) {
+  var sem = currentModSem;
+  var folderMods = modules.filter(function(m){ return m.sem === sem && m.subject === subj; });
+  var schedData  = SEMESTERS[sem] ? SEMESTERS[sem].schedule : [];
+  var schedEntry = schedData.find(function(s){ return s.code === subj; });
+
+  /* Mark as seen */
+  folderMods.forEach(function(m){ m.seen = true; });
+
+  document.getElementById('open-folder-title').textContent = subj;
+  document.getElementById('open-folder-meta').textContent  =
+    schedEntry ? schedEntry.instructor + ' · ' + schedEntry.day + ' ' + schedEntry.time + ' · ' + schedEntry.room : '';
+
+  var grid = document.getElementById('mod-list-grid');
+  if (!folderMods.length) {
+    grid.innerHTML = '<div class="empty-state" style="padding:2.5rem;grid-column:1/-1"><div class="empty-icon">📭</div><h4>No modules yet</h4><p>Your teacher hasn\'t uploaded any materials for this subject yet.</p></div>';
+  } else {
+    grid.innerHTML = folderMods.map(function(m){ return buildModCard(m); }).join('');
+  }
+
+  document.getElementById('mod-folders-view').style.display = 'none';
+  document.getElementById('mod-list-view').style.display    = 'block';
+  renderSubjectFolders(); /* refresh to clear new-dot */
+}
+
+function closeModFolder() {
+  document.getElementById('mod-folders-view').style.display = 'block';
+  document.getElementById('mod-list-view').style.display    = 'none';
+}
+
+/* ── Build a module card (shared between student view + admin preview) ── */
+function buildModCard(m) {
+  var typeColors = { PDF:'#e3f2fd:#1565c0', Handout:'#f3e5f5:#6a1b9a', Worksheet:'#fff8e1:#e65100', Review:'#e8f5e9:#1b5e20', Assignment:'#fce4ec:#880e4f' };
+  var pair = (typeColors[m.type] || '#f0f0ee:#555').split(':');
+  var dlBtn = m.fileData
+    ? '<button class="mod-dl-btn" onclick="event.stopPropagation();downloadModule(\'' + m.id + '\')">&#8681; Download</button>'
+    : '<button class="mod-dl-btn mod-dl-demo" onclick="event.stopPropagation();toast(\'Demo file — admin must upload a real file.\',\'amber\',\'ℹ️\')">&#8681; Download</button>';
+  return '<div class="module-card">'
+    + '<div class="mod-header"><span class="mod-type-badge" style="background:' + pair[0] + ';color:' + pair[1] + '">' + m.type + '</span><span class="mod-size">' + m.size + '</span></div>'
+    + '<div class="mod-icon">📄</div>'
+    + '<h4 class="mod-title">' + m.title + '</h4>'
+    + '<p class="mod-desc">' + m.desc + '</p>'
+    + '<div class="mod-meta"><span class="mod-subject">' + m.subject + '</span><span class="mod-uploader">by ' + m.uploader + '</span></div>'
+    + '<div class="mod-footer"><span class="mod-date">' + m.date + '</span>' + dlBtn + '</div>'
+    + '</div>';
+}
+
+function downloadModule(modId) {
+  var m = modules.find(function(x){ return x.id === modId; }); if (!m || !m.fileData) return;
+  var a = document.createElement('a'); a.href = m.fileData; a.download = m.fileName || 'module.pdf';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('Downloading ' + m.fileName, 'green', '⬇️');
+}
+
+/* ── STUDENT: Submit document request ── */
+function submitDoc() {
+  var purpose = document.getElementById('doc-purpose').value.trim();
+  var copies  = (document.getElementById('doc-copies') || {}).value || '1';
+  if (!purpose) { toast('Please enter the purpose of your request.', 'amber', '⚠️'); return; }
+  var labels = { TOR:'Transcript of Records', COE:'Certificate of Enrollment', GOOD:'Good Moral Certificate', GRAD:'Certification of Graduation' };
+  var today  = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'short', day:'numeric' });
+  var refId  = 'REQ-' + String(docReqCounter++).padStart(3,'0');
+  docRequests.unshift({ id:refId, studentId:curUser?curUser.id:'', studentName:curUser?curUser.name:'', type:selectedDoc, typeFull:labels[selectedDoc], purpose:purpose, copies:parseInt(copies)||1, date:today, status:'pending', fileData:null, fileName:null });
+  document.getElementById('doc-purpose').value = '';
+  renderMyRequests();
+  updateAdminDocBadge();
+  toast(labels[selectedDoc] + ' request submitted! Ref: ' + refId, 'green', '📄');
+  pushNotif('📋', 'ni-amber', 'Document Request Submitted', labels[selectedDoc] + ' — Ref: ' + refId + '. Processing: 3–5 business days.', function(){ sec('documents'); });
+}
+
+/* ── STUDENT: Render my requests ── */
+function renderMyRequests() {
+  var el = document.getElementById('req-history'); if (!el) return;
+  var mine = docRequests.filter(function(r){ return r.studentId === (curUser ? curUser.id : ''); });
+  var badge = document.getElementById('req-count-badge');
+  if (badge) { badge.textContent = mine.length + ' request' + (mine.length !== 1 ? 's' : ''); }
+  if (!mine.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:2rem"><div class="empty-icon">📋</div><h4>No requests yet</h4><p>Select a document type above and submit your request.</p></div>';
+    return;
+  }
+  el.innerHTML = mine.map(function(r) {
+    var bc = DOC_STATUS_BADGE[r.status] || 'badge-gray';
+    var sl = DOC_STATUS[r.status] || r.status;
+    var dl = (r.status === 'ready' || r.status === 'released') && r.fileData
+      ? '<button class="req-dl-btn" onclick="downloadDocFile(\'' + r.id + '\')">&#8681; Download</button>'
+      : r.status === 'ready' ? '<span class="req-pickup-note">&#128197; Visit Registrar</span>' : '';
+    return '<div class="req-item">'
+      + '<div class="req-icon-wrap">' + getDocEmoji(r.type) + '</div>'
+      + '<div class="req-info"><h4>' + r.typeFull + ' <span class="req-ref">' + r.id + '</span></h4>'
+      + '<p>' + r.date + ' &middot; ' + r.purpose + ' &middot; ' + r.copies + ' cop' + (r.copies===1?'y':'ies') + '</p></div>'
+      + '<div class="req-act-cell"><span class="badge ' + bc + '">' + sl + '</span>' + dl + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function getDocEmoji(t) { return {TOR:'🎓',COE:'📜',GOOD:'✅',GRAD:'🏅'}[t] || '📋'; }
+function downloadDocFile(reqId) {
+  var r = docRequests.find(function(x){ return x.id===reqId; }); if (!r||!r.fileData) { toast('File not attached.','amber','⚠️'); return; }
+  var a = document.createElement('a'); a.href=r.fileData; a.download=r.fileName||'document.pdf';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ── ADMIN: Render doc requests ── */
+function renderAdminDocRequests() {
+  var el = document.getElementById('ad-req-body'); if (!el) return;
+  var fSt = (document.getElementById('ad-req-filter-status')||{}).value || 'all';
+  var fTy = (document.getElementById('ad-req-filter-type')||{}).value   || 'all';
+  var list = docRequests.filter(function(r){ return (fSt==='all'||r.status===fSt) && (fTy==='all'||r.type===fTy); });
+  updateAdminDocBadge();
+  if (!list.length) { el.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-muted)">No requests match the selected filters.</td></tr>'; return; }
+  el.innerHTML = list.map(function(r) {
+    var bc = DOC_STATUS_BADGE[r.status]||'badge-gray';
+    var sl = DOC_STATUS[r.status]||r.status;
+    var act = '';
+    if      (r.status==='pending')    act='<button class="tbl-btn" onclick="adminUpdateStatus(\''+r.id+'\',\'processing\')">Mark Processing</button>';
+    else if (r.status==='processing') act='<label class="tbl-btn tbl-upload-btn">&#8679; Upload File<input type="file" accept=".pdf,.doc,.docx" style="display:none" onchange="adminUploadDoc(\''+r.id+'\',this)"></label>';
+    else if (r.status==='ready')      act='<button class="tbl-btn" onclick="adminUpdateStatus(\''+r.id+'\',\'released\')">Mark Released</button>';
+    else                               act='<span style="color:var(--text-muted);font-size:.8rem">Done</span>';
+    return '<tr><td><strong>'+r.id+'</strong></td>'
+      +'<td>'+r.studentId+'<br><span style="font-size:.74rem;color:var(--text-muted)">'+r.studentName+'</span></td>'
+      +'<td>'+r.typeFull+'</td><td>'+r.purpose+'</td><td>'+r.date+'</td>'
+      +'<td><span class="badge '+bc+'">'+sl+'</span></td><td>'+act+'</td></tr>';
+  }).join('');
+}
+
+function adminUpdateStatus(reqId, newStatus) {
+  var r = docRequests.find(function(x){ return x.id===reqId; }); if (!r) return;
+  r.status = newStatus;
+  renderAdminDocRequests(); updateAdminDocBadge();
+  if (newStatus==='ready') { pushNotif('✅','ni-green','Document Ready for Pickup',r.typeFull+' ('+r.id+') is now ready. Visit the Registrar\'s Office.',function(){sec('documents');}); toast('Student notified — document ready!','green','✅'); }
+  else toast('Status updated to: '+DOC_STATUS[newStatus],'green','✓');
+}
+
+function adminUploadDoc(reqId, input) {
+  if (!input.files||!input.files[0]) return;
+  var r = docRequests.find(function(x){ return x.id===reqId; }); if (!r) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    r.fileData = e.target.result; r.fileName = input.files[0].name; r.status = 'ready';
+    renderAdminDocRequests(); updateAdminDocBadge();
+    pushNotif('✅','ni-green','Document Ready for Pickup',r.typeFull+' ('+r.id+') uploaded & ready for pickup.',function(){sec('documents');});
+    toast(r.typeFull+' uploaded and marked Ready!','green','📤');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function updateAdminDocBadge() {
+  var pending = docRequests.filter(function(r){ return r.status==='pending'||r.status==='processing'; }).length;
+  var badge = document.getElementById('ad-req-badge');
+  if (badge) { badge.textContent = pending>0?pending+' Pending':'All Clear'; badge.className='badge '+(pending>0?'badge-amber':'badge-green'); }
+  var sb = document.getElementById('ad-req-sb-badge');
+  if (sb) { sb.textContent = pending||''; sb.style.display = pending>0?'inline-flex':'none'; }
+}
+
+/* ── ADMIN: Module file drop zone ── */
+function handleModFileSelect(input) {
+  if (!input.files||!input.files[0]) return;
+  var name = input.files[0].name;
+  var fdz = document.getElementById('fdz-text');
+  if (fdz) { fdz.textContent = '✓ ' + name; fdz.style.color = 'var(--g700)'; fdz.style.fontWeight = '600'; }
+}
+function handleModFileDrop(e) {
+  var file = e.dataTransfer.files[0]; if (!file) return;
+  var input = document.getElementById('mod-file');
+  /* DataTransfer hack to set file on input */
+  var dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+  handleModFileSelect(input);
+}
+
+/* ── ADMIN: Upload module ── */
+function adminUploadModule() {
+  var title   = (document.getElementById('mod-title')||{}).value && document.getElementById('mod-title').value.trim();
+  var subject = (document.getElementById('mod-subject')||{}).value && document.getElementById('mod-subject').value.trim();
+  var sem     = (document.getElementById('mod-sem')||{}).value || '1st-2526';
+  var type    = (document.getElementById('mod-type')||{}).value || 'PDF';
+  var desc    = (document.getElementById('mod-desc')||{}).value && document.getElementById('mod-desc').value.trim();
+  var finput  = document.getElementById('mod-file');
+  if (!title||!subject||!desc) { toast('Please fill in Title, Subject, and Description.','amber','⚠️'); return; }
+  var today = new Date().toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'});
+  var newMod = { id:'MOD-'+String(modCounter++).padStart(3,'0'), title:title, subject:subject.toUpperCase(), sem:sem, type:type, desc:desc, uploader:'Administrator', date:today, fileData:null, fileName:finput.files&&finput.files[0]?finput.files[0].name:'module.pdf', size:finput.files&&finput.files[0]?formatFileSize(finput.files[0].size):'—', seen:false };
+  var finish = function() {
+    modules.unshift(newMod);
+    renderAdminModules(); updateAdminModSubjFilter();
+    document.getElementById('mod-title').value=''; document.getElementById('mod-subject').value=''; document.getElementById('mod-desc').value='';
+    if (finput) { finput.value=''; } var fdz=document.getElementById('fdz-text'); if(fdz){fdz.textContent='Click or drag a file here to upload';fdz.style.color='';fdz.style.fontWeight='';}
+    pushNotif('📂','ni-blue','New Module Uploaded','"'+title+'" uploaded for '+subject+'.',function(){docTab('modules');});
+    toast('"'+title+'" uploaded successfully!','green','📤');
+  };
+  if (finput.files&&finput.files[0]) { var r=new FileReader(); r.onload=function(e){newMod.fileData=e.target.result;finish();}; r.readAsDataURL(finput.files[0]); }
+  else finish();
+}
+
+/* ── ADMIN: Render module list ── */
+function renderAdminModules() {
+  var el = document.getElementById('ad-modules-list'); if (!el) return;
+  var fSem  = (document.getElementById('ad-mod-filter-sem')||{}).value  || 'all';
+  var fSubj = (document.getElementById('ad-mod-filter-subj')||{}).value || 'all';
+  var list  = modules.filter(function(m){ return (fSem==='all'||m.sem===fSem) && (fSubj==='all'||m.subject===fSubj); });
+  var badge = document.getElementById('ad-mod-count'); if (badge) badge.textContent = list.length + ' module' + (list.length!==1?'s':'');
+  if (!list.length) { el.innerHTML='<div class="empty-state" style="padding:2rem"><div class="empty-icon">📂</div><h4>No modules</h4><p>Upload your first module using the form above.</p></div>'; return; }
+  el.innerHTML = list.map(function(m) {
+    var semLabel = SEMESTERS[m.sem] ? SEMESTERS[m.sem].label : m.sem;
+    return '<div class="admin-mod-row">'
+      +'<div class="admin-mod-icon">📄</div>'
+      +'<div class="admin-mod-info"><h4>'+m.title+'</h4>'
+      +'<p>'+m.subject+' &middot; '+semLabel+' &middot; '+m.type+' &middot; '+m.size+'</p>'
+      +'<span style="font-size:.73rem;color:var(--text-muted)">by '+m.uploader+' &middot; '+m.date+(m.fileData?' &middot; <span style="color:var(--g700);font-weight:600">&#10003; File attached</span>':' &middot; <span style="color:var(--text-muted)">No file</span>')+'</span></div>'
+      +'<div class="admin-mod-actions"><button class="tbl-btn tbl-btn-danger" onclick="adminDeleteModule(\''+m.id+'\')">Delete</button></div>'
+      +'</div>';
+  }).join('');
+}
+
+function adminDeleteModule(modId) {
+  var idx = modules.findIndex(function(x){ return x.id===modId; }); if(idx===-1)return;
+  var name = modules[idx].title; modules.splice(idx,1);
+  renderAdminModules(); updateAdminModSubjFilter();
+  toast('"'+name+'" deleted.','default','🗑️');
+}
+
+function updateAdminModSubjFilter() {
+  var sel = document.getElementById('ad-mod-filter-subj'); if (!sel) return;
+  var cur = sel.value;
+  var subjects = []; modules.forEach(function(m){ if(subjects.indexOf(m.subject)===-1)subjects.push(m.subject); });
+  sel.innerHTML = '<option value="all">All Subjects</option>' + subjects.sort().map(function(s){ return '<option value="'+s+'">'+ s+'</option>'; }).join('');
+  if (subjects.indexOf(cur)!==-1) sel.value = cur;
+}
+
+function formatFileSize(b) { if(!b)return'—'; if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(0)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+
+/* ── Extend adSec ── */
+var _origAdSec = adSec;
+adSec = function(id) {
+  _origAdSec(id);
+  if (id==='a-requests') { renderAdminDocRequests(); updateAdminDocBadge(); }
+  if (id==='a-modules')  { renderAdminModules(); updateAdminModSubjFilter(); }
+};
+
+/* ── Extend sec so opening Documents auto-renders ── */
+var _origSec = sec;
+sec = function(id) {
+  _origSec(id);
+  if (id==='documents') { renderMyRequests(); }
+};
+
+/* ── Extend onSemChange so student module view also updates ── */
+var _origOnSemChange = onSemChange;
+onSemChange = function(val) {
+  _origOnSemChange(val);
+  currentModSem = val;
+  /* update module sem tab buttons */
+  document.querySelectorAll('.mod-sem-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.sem===val); });
+  /* if modules panel is visible, re-render folders */
+  var mp = document.getElementById('dpanel-modules');
+  if (mp && mp.style.display !== 'none') { closeModFolder(); renderSubjectFolders(); }
+};
